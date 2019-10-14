@@ -1,11 +1,13 @@
 from tkinter import *
 from functools import partial
 from tkinter.messagebox import showinfo
+from math import *
 
 class Application():
 
     def __init__(self):
         self.fenetre = Tk()
+        self.scientifique = False
         self.calcul = ""
         self.listeOptions = ('aide', 'basique', 'scientifique')
 
@@ -30,7 +32,6 @@ class Application():
         self.fenetre.mainloop()
 
     def handle_button(self,i, j):
-        print(i, j)
         if self.l_lab[i][j] == "C":
             if len(self.calcul) == 1:
                 self.calcul = ""
@@ -43,7 +44,7 @@ class Application():
                 res = eval(self.calcul)
                 self.calcul = str(res)
             except:
-                self.calcul = ""
+                self.calcul = "Invalid operation"
         elif self.l_lab[i][j] != " ":
             self.calcul+=self.l_lab[i][j]
         self.calculP.set(self.calcul)
@@ -55,19 +56,37 @@ class Application():
         self.fenetre.config(menu = self.menu)
         self.menuFichier = Menu(self.menu,tearoff=0)
         self.menu.add_cascade(label="Fichier", menu=self.menuFichier)
-
         self.menuFichier.add_command(label="aide", command=self.aide)
-        self.menuFichier.add_command(label="basique")
-        self.menuFichier.add_command(label="scientifique")
+        self.menuFichier.add_command(label="basique", command=self.on_off_scientifique)
+        self.menuFichier.add_command(label="scientifique", command=self.on_off_scientifique)
 
 
     def create_interface(self):
-        for i in range(5):
+        for i in range(6 if self.scientifique else 5):
             for j in range(4):
                 action = partial(self.handle_button, i, j)
                 b = Button(self.frame1, text=self.l_lab[i][j], command=action)
                 self.mat_but[i][j] = b
                 self.mat_but[i][j].grid(row=i+1, column=j)
+
+    def on_off_scientifique(self):
+
+        for i in range (6 if self.scientifique else 5):
+            for j in range(4):
+                self.mat_but[i][j].destroy()
+
+        self.scientifique = False if self.scientifique else True
+        w, h = 4, 5
+        if self.scientifique:
+            self.l_lab = [["(", ")", "C", "AC"], ["0", ".", "=", "+"], ["1", "2", "3", "-"], ["4", "5", "6", "*"],
+                          ["7", "8", "9", "/"], ["log", "sqrt", "exp", "pow"]]
+            h = 6
+        else:
+            self.l_lab = [["", "", "C", "AC"], ["0", " ", "=", "+"], ["1", "2", "3", "-"], ["4", "5", "6", "*"],
+                          ["7", "8", "9", "/"]]
+        self.mat_but = [[0 for x in range(w)] for y in range(h)]
+
+        self.create_interface()
 
 
 
